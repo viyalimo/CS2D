@@ -13,15 +13,16 @@ class Player:
         self.rect = (x, y)
         self.vel = 10
         self.anim = 0
+        self.scroll_x = 0
 
     def draw(self, win):
         ticreite = pygame.time.Clock()
         # pygame.draw.rect(screen, self.color, self.rect)
         win.blit(Animation1(self.Direction)[self.anim], self.rect)
-        if self.anim < 3:
-            self.anim += 1
-        else:
+        if self.anim == 3:
             self.anim = 0
+        else:
+            self.anim += 1
         ticreite.tick(20)
 
     def move(self):
@@ -42,6 +43,7 @@ class Player:
         self.update()
 
     def update(self):
+        self.scroll_x = self.scroll_x
         self.Direction = self.Direction
         self.anim = self.anim
         self.rect = (self.x, self.y)
