@@ -1,12 +1,6 @@
 import pygame
 from network import Network
 
-width = 1100
-heigh = 800
-screen = pygame.display.set_mode((width, heigh))
-pygame.display.set_caption("CS2D")
-anim = 0
-
 
 def redrawWindow(win, player, player2):
     win.fill((255, 255, 255))
@@ -33,4 +27,11 @@ def main():
 
 
 if __name__ == "__main__":
+    width = 1100
+    heigh = 800
+    screen = pygame.display.set_mode((width, heigh))
+
+    pygame.display.set_caption("CS2D")
+    anim = 0
     main()
+
