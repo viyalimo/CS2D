@@ -17,7 +17,7 @@ except socket.error as e:
 s.listen(2)  # ожидание подключения
 print("Waiting for a connection, Server Started")
 
-players = [Player(0, 0, "L"), Player(100, 100, "L")]
+players = [Player(0, 0,None, None, "L"), Player(100, 100, None, None, "L")]
 
 
 def threaded_client(con, player):
