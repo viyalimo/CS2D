@@ -3,7 +3,7 @@ from Character import Animation1
 
 
 class Player:
-    def __init__(self, x, y, height, weight, Direction):
+    def __init__(self, x, y, Direction):
         self.height = 65
         self.weight = 85
         self.Direction = "L"
@@ -13,7 +13,7 @@ class Player:
         # self.height = height
         # self.color = color
         self.rect = (x, y)
-        self.vel = 10
+        self.vel = 5
         self.anim = 0
         self.run = False
 
@@ -54,5 +54,5 @@ class Player:
         self.run = self.run
         self.Direction = self.Direction
         self.anim = self.anim
-        self.rect = (self.x, self.y, self.height, self.weight)
-        print(self.x, self.y, self.height, self.weight, self.Direction)
+        self.rect = (self.x, self.y)
+        print(self.x, self.y, self.Direction)

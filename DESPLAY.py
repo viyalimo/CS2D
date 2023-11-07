@@ -2,22 +2,25 @@ import pygame
 from pygame import Surface
 from Map import Map
 from network import Network
+from Camera import Camera
 
 
-def redrawWindow(win, player, player2, map):
+def redrawWindow(win, player, player2, mapa, camera, widt, heigh):
     win.fill('black')
-    win = map.DRAWMAP(win)
+    win = mapa.DRAWMAP(win, camera)
     player.draw(win)
     player2.draw(win)
     pygame.display.update()
 
 
-def main():
+def main(widt, heigh):
     run = True
     n = Network()
     p = n.getP()
-    map = Map(2000, 2000)
+    print(p)
+    mapa = Map(3000, 3000)
     clock = pygame.time.Clock()
+    camera = Camera(widt, heigh, 2000, 2000)
     while run:
         clock.tick(60)
         p2 = n.send(p)
@@ -27,14 +30,14 @@ def main():
                 run = False
                 pygame.quit()
         p.move()
-        redrawWindow(screen, p, p2, map)
+        camera.update(p)
+        redrawWindow(screen, p, p2, mapa, camera, widt, heigh)
 
 
 if __name__ == "__main__":
-    screen = pygame.display.set_mode((1500, 800))
+    width = 1500
+    height = 800
+    screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("CS2D")
     anim = 0
-    main()
-
-# class Camera:
-#     def __init__(self):
+    main(width, height)

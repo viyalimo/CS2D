@@ -1,6 +1,4 @@
-import player as player
 import pygame
-import player
 
 
 class Map:
@@ -33,7 +31,7 @@ class Map:
                      ]
         return world
 
-    def DRAWMAP(self, win):
+    def DRAWMAP(self, win, camera):
         world = self.View_world(1)
         tile_Size = 50
         win.fill('black')
@@ -43,7 +41,7 @@ class Map:
                 y = row * tile_Size
 
                 if world[row][col] == 'B':
-                    win.blit(self.imbg, (x, y, tile_Size, tile_Size))
+                    win.blit(self.imbg, camera.apply(pygame.Rect(x, y, tile_Size, tile_Size)))
                 else:
-                    pygame.draw.rect(win, 'gray10', (x, y, tile_Size, tile_Size), 1)
+                    pygame.draw.rect(win, 'gray10', camera.apply(pygame.Rect(x, y, tile_Size, tile_Size)), 1)
         return win
