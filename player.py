@@ -20,7 +20,7 @@ class Player:
         ticreite = pygame.time.Clock()
         # pygame.draw.rect(screen, self.color, self.rect)
         win.blit(Animation1(self.Direction)[self.anim], self.rect)
-        if self.anim < 3 and self.run == True:
+        if self.anim < 3 and self.run:
             self.anim += 1
         else:
             if self.anim == 3:
