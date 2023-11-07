@@ -34,18 +34,20 @@ class Player:
             self.run = True
             self.x -= self.vel
             self.Direction = "L"
-        if now_press[pygame.K_RIGHT] or now_press[pygame.K_d]:
-            self.run = True
-            self.Direction = 'R'
-            self.x += self.vel
+        else:
+            if now_press[pygame.K_RIGHT] or now_press[pygame.K_d]:
+                self.run = True
+                self.Direction = 'R'
+                self.x += self.vel
         if now_press[pygame.K_UP] or now_press[pygame.K_w]:
             self.run = True
             self.y -= self.vel
             self.Direction = "U"
-        if now_press[pygame.K_DOWN] or now_press[pygame.K_s]:
-            self.run = True
-            self.y += self.vel
-            self.Direction = "D"
+        else:
+            if now_press[pygame.K_DOWN] or now_press[pygame.K_s]:
+                self.run = True
+                self.y += self.vel
+                self.Direction = "D"
 
         self.update()
 
