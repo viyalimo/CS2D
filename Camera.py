@@ -23,3 +23,4 @@ class Camera:
             y = -target[1] + self.sc_height // 2
 
         self.camera = pygame.Rect(x, y, self.sc_width, self.sc_height)
+        """ fuck camera"""
