@@ -13,15 +13,13 @@ class Camera:
         return entity.move(self.camera.topleft)
 
     def update(self, target):
-        x = -target.x + int(self.sc_width / 2)
-        print(target.x)
-        y = -target.y + int(self.sc_height / 2)
-        print(target.y)
-
-        # Ограничьте камеру, чтобы она не выходила за пределы карты
-        x = min(0, x)
-        y = min(0, y)
-        x = max(-(self.map_width - self.sc_width), x)
-        y = max(-(self.map_height - self.sc_height), y)
+        try:
+            x = -target.x + self.sc_width // 2
+            print(x)
+            y = -target.y + self.sc_height // 2
+            print(y)
+        except:
+            x = -target[0] + self.sc_width // 2
+            y = -target[1] + self.sc_height // 2
 
         self.camera = pygame.Rect(x, y, self.sc_width, self.sc_height)
