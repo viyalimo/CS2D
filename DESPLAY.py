@@ -10,43 +10,35 @@ def redrawWindow(win, player, player2, mapa, camera, widt, heigh):
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
     player.draw(win)
-    try:
-        player2.draw(win)
-    except:
+    if (player.x > player2.x + mapa.width) and (player.y > player2.y + mapa.height):
         pass
+    else:
+        player2.Draw_player2(win)
     pygame.display.update()
 
 
-def main(widt, heigh):
-    run = True  # состояние игрового процесса
-    try:
-        n = Network()  # создание объекта класса, отвечающего за передачу и отправку информации на сервер
-        p = n.getP()  # взятие начального положения игрока
-    except:
-        p = Player(0, 0, "L")
-
-    mapa = Map(1)  # создание объекта класса Map, который создаёт карту
-    clock = pygame.time.Clock()  # создание внутренних часов
-    camera = Camera(widt, heigh, 3000,
-                    3000)  # создание объекта класса Camera и передача размеров видимой области, а также передача размеров карты
-    while run:  # запуск основного игрового цикла
-        try:
-            p2 = n.send(p) # отправка позиции игрока 1 и приём информации об координатах игрока 2
-        except:
-            pass
-        for event in pygame.event.get():  # функция закрытия окна
+def main(weight, height, map_a, camer_a):
+    run = True
+    n = Network()
+    p = n.getP()
+    p.get_map(mapa.H_W()[0], mapa.H_W()[1])
+    p.get_src(weight, height)
+    clock = pygame.time.Clock()
+    while run:
+        p2 = n.send(p)
+        for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        p.move()  # изменение координат игрока 1
-        camera.update(p)  # обновление камеры относительно игрока 1
-        redrawWindow(screen, p, p2, mapa, camera, widt, heigh)  # отрисовка игрового окна для игрока 1
+        p.move(camer_a)
+        redrawWindow(screen, p, p2, mapa, camera, weight, height)
         clock.tick(60)  # FPS
 
 
 if __name__ == "__main__":
-    width = 1500  # размер окна приложения
-    height = 800
-    screen = pygame.display.set_mode((width, height))  # создание окна приложения
+    screen_weight, screen_height = 1500, 800  # размер окна приложения
+    screen = pygame.display.set_mode((screen_weight, screen_height))  # создание окна приложения
     pygame.display.set_caption("CS2D")  # название окна приложенния
-    main(width, height)  # переход в функцию main с передачей высоты и ширины окна
+    mapa = Map(1)
+    camera = Camera(screen_weight, screen_height, mapa.H_W()[0], mapa.H_W()[1])
+    main(screen_weight, screen_height, mapa, camera)  # переход в функцию main с передачей высоты и ширины окна
