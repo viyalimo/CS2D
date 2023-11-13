@@ -25,5 +25,5 @@ class Camera:
         self.y_center = p_y - (self.sc_height // 2)
         self.x = -(max(0, min(-self.x, (self.map_width - self.sc_width))))
         self.y = -(max(0, min(-self.y, (self.map_height - self.sc_height))))
-        print(-self.x, -self.y, "Class camera")
+        # print(-self.x, -self.y, "Class camera")
         self.camera = pygame.Rect(self.x, self.y, self.sc_width, self.sc_height)

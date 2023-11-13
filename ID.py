@@ -1,84 +1,128 @@
 import pygame
-from Character import Animation1
+import sys
+import math
+
+# Инициализация Pygame
+pygame.init()
+
+# Определение цветов
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+
+# Размеры окна
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+
+# Размеры сетки и препятствий
+GRID_SIZE = 50
+OBSTACLE_SIZE = GRID_SIZE
+
+# Создание окна
+screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Простая 2D игра")
+
+# Создание игрока
+player_size = 25
+player_x = (WINDOW_WIDTH - player_size) // 2
+player_y = (WINDOW_HEIGHT - player_size) // 2
+player_speed = 2
+
+# Создание камеры
+camera = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+
+# Создание препятствий
+obstacles = [(100, 100), (300, 200), (400, 400), (550, 350)]
+
+# Создание пуль
+bullets = []
+
+# Основной игровой цикл
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Обработка движения игрока
+    keys = pygame.key.get_pressed()
+    player_dx, player_dy = 0, 0
+    if keys[pygame.K_LEFT]:
+        player_dx = -player_speed
+    if keys[pygame.K_RIGHT]:
+        player_dx = player_speed
+    if keys[pygame.K_UP]:
+        player_dy = -player_speed
+    if keys[pygame.K_DOWN]:
+        player_dy = player_speed
+
+    # Проверка столкновения игрока с препятствиями
+    player_rect = pygame.Rect(player_x + player_dx, player_y + player_dy, player_size, player_size)
+    for obstacle in obstacles:
+        obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], OBSTACLE_SIZE, OBSTACLE_SIZE)
+        if player_rect.colliderect(obstacle_rect):
+            player_dx, player_dy = 0, 0
+            break  # Прекратить проверку столкновения, если уже произошло
+
+    player_x += player_dx
+    player_y += player_dy
+
+    # Ограничение игрока в пределах окна
+    player_x = max(0, min(player_x, WINDOW_WIDTH - player_size))
+    player_y = max(0, min(player_y, WINDOW_HEIGHT - player_size))
+
+    # Обработка стрельбы
+    if pygame.mouse.get_pressed()[0]:  # Левая кнопка мыши
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        angle = math.atan2(mouse_y - (player_y + player_size / 2), mouse_x - (player_x + player_size / 2))
+        bullet_speed = 5
+        bullet_x = player_x + player_size / 2
+        bullet_y = player_y + player_size / 2
+        bullets.append([bullet_x, bullet_y, angle])
+
+    # Перемещение пуль
+    bullets_to_remove = []
+    for bullet in bullets:
+        bullet[0] += bullet_speed * math.cos(bullet[2])
+        bullet[1] += bullet_speed * math.sin(bullet[2])
+
+        # Проверка столкновения пуль с препятствиями
+        for obstacle in obstacles:
+            if pygame.Rect(obstacle[0], obstacle[1], OBSTACLE_SIZE, OBSTACLE_SIZE).collidepoint(bullet[0], bullet[1]):
+                bullets_to_remove.append(bullet)
+
+    # Удаление пуль, которые столкнулись с препятствиями
+    for bullet in bullets_to_remove:
+        bullets.remove(bullet)
 
 
-class Player:
-    def __init__(self, x, y, Direction):
-        self.map_height = 0
-        self.map_weight = 0
-        self.player_weight = 0
-        self.player_height = 0
-        self.Direction = "L"
-        self.scr_weight = 0
-        self.scr_height = 0
-        self.camera_speed = 10
-        self.x = x
-        self.y = y
-        # self.screen_width = screen_width
-        # self.height = height
-        # self.color = color
-        self.rect = (x, y)
-        self.speed = 10
-        self.anim = 0
-        self.run = False
 
-    def draw(self, win, camera):
-        ticreite = pygame.time.Clock()
-        anim_surface = Animation1(self.Direction)[self.anim]
-        anim_rect = anim_surface.get_rect()
-        self.player_weight = anim_rect.width
-        self.player_height = anim_rect.height
-        anim_rect.topleft = self.rect
-        camera.update(-(self.rect[0] - self.scr_weight // 2), -(self.rect[1] - self.scr_height // 2))
-        win.blit(anim_surface, self.rect)
-        print(self.rect, "rectttttttt")
-        if self.anim < 3 and self.run:
-            self.anim += 1
-        else:
-            if self.anim == 3:
-                self.anim = 0
-                self.run = False
-        ticreite.tick(25)
+    # Заполнение экрана зеленым цветом
+    screen.fill(GREEN)
 
-    def move(self, camera):
-        now_press = pygame.key.get_pressed()
-        if now_press[pygame.K_LEFT] or now_press[pygame.K_a]:
-            self.run = True
-            self.x -= self.speed
-            self.Direction = "L"
-            camera.x += self.camera_speed
-        if now_press[pygame.K_RIGHT] or now_press[pygame.K_d]:
-            self.run = True
-            self.Direction = 'R'
-            self.x += self.speed
-            camera.x -= self.camera_speed
-        if now_press[pygame.K_UP] or now_press[pygame.K_w]:
-            self.run = True
-            self.y -= self.speed
-            self.Direction = "U"
-            camera.y += self.camera_speed
-        if now_press[pygame.K_DOWN] or now_press[pygame.K_s]:
-            self.run = True
-            self.y += self.speed
-            self.Direction = "D"
-            camera.y -= self.camera_speed
-        self.x = max(self.scr_weight // 2, min(self.x, self.map_weight - self.scr_weight // 2))
-        self.y = max(self.scr_height // 2, min(self.y, self.map_height - self.scr_height // 2))
-        # camera.update(camera.x, camera.y)
-        self.update()
+    # Обновление камеры
+    camera.center = player_x + player_size // 2, player_y + player_size // 2
 
-    def update(self):
-        self.run = self.run
-        self.Direction = self.Direction
-        self.anim = self.anim
-        self.rect = (self.x, self.y)
+    # Отрисовка сетки
+    for x in range(0, WINDOW_WIDTH, GRID_SIZE):
+        pygame.draw.line(screen, BLACK, (x, 0), (x, WINDOW_HEIGHT))
+    for y in range(0, WINDOW_HEIGHT, GRID_SIZE):
+        pygame.draw.line(screen, BLACK, (0, y), (WINDOW_WIDTH, y))
 
-        #  print(self.x, self.y, self.Direction)
+    # Отрисовка препятствий
+    for obstacle in obstacles:
+        pygame.draw.rect(screen, RED, (obstacle[0], obstacle[1], OBSTACLE_SIZE, OBSTACLE_SIZE))
 
-    def get_map(self, weight, height):
-        self.map_weight = weight
-        self.map_height = height
+    # Отрисовка игрока
+    pygame.draw.rect(screen, BLACK, (player_x, player_y, player_size, player_size))
 
-    def get_src(self, weight, height):
-        self.scr_weight = weight
-        self.scr_height = height
+    # Отрисовка пуль
+    for bullet in bullets:
+        pygame.draw.circle(screen, YELLOW, (int(bullet[0]), int(bullet[1])), 3)
+
+    pygame.display.update()
+
+# Завершение Pygame
+pygame.quit()
+sys.exit()

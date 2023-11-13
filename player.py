@@ -4,6 +4,7 @@ from Character import Animation1
 
 class Player:
     def __init__(self, x, y, Direction):
+        # self.connected = True
         self.map_height = 0
         self.map_weight = 0
         self.player_weight = 0
@@ -14,11 +15,8 @@ class Player:
         self.start_pos = (x, y)
         self.x = x
         self.y = y
-        # self.screen_width = screen_width
-        # self.height = height
-        # self.color = color
         self.rect = (x, y)
-        self.speed = 20
+        self.speed = 15
         self.anim = 0
         self.run = False
 
@@ -38,14 +36,14 @@ class Player:
                 self.run = False
         ticreite.tick(25)
 
-    def Draw_player2(self, win):
+    def Draw_player2(self, win, player2, camera):
         ticreite = pygame.time.Clock()
-        anim_surface = Animation1(self.Direction)[self.anim]
+        anim_surface = Animation1(player2.Direction)[player2.anim]
         anim_rect = anim_surface.get_rect()
         self.player_weight = anim_rect.width
         self.player_height = anim_rect.height
-        anim_rect.topleft = self.rect
-        win.blit(anim_surface, self.rect)
+        anim_rect.topleft = (player2.x, player2.y)
+        win.blit(anim_surface, camera.apply(anim_rect))
         if self.anim < 3 and self.run:
             self.anim += 1
         else:

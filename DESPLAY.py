@@ -13,11 +13,11 @@ def redrawWindow(win, player, player2, mapa, camera, widt, heigh):
     if (player.x > player2.x + mapa.width) and (player.y > player2.y + mapa.height):
         pass
     else:
-        player2.Draw_player2(win)
+        player2.Draw_player2(win, player2, camera)
     pygame.display.update()
 
 
-def main(weight, height, map_a, camer_a):
+def main(weight, height, mapa, camera):
     run = True
     n = Network()
     p = n.getP()
@@ -30,7 +30,7 @@ def main(weight, height, map_a, camer_a):
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        p.move(camer_a)
+        p.move(camera)
         redrawWindow(screen, p, p2, mapa, camera, weight, height)
         clock.tick(60)  # FPS
 
