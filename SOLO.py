@@ -14,7 +14,7 @@ def redrawWindow(win, player, mapa, camera, weight, height):
 def main(weight, height, mapa, camera):
     run = True  # состояние игрового процесса
     p = Player(weight // 2, height // 2, "L")
-    p.get_map(mapa.H_W()[0], mapa.H_W()[1])
+    p.get_map(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
     print(mapa.H_W()[0], mapa.H_W()[1])
     p.get_src(weight, height)
     clock = pygame.time.Clock()  # создание внутренних часов
@@ -24,7 +24,7 @@ def main(weight, height, mapa, camera):
                 run = False
                 pygame.quit()
         mapa.get_player(p)
-        p.move(camera)  # изменение координат игрока 1
+        p.move(camera, mapa.obstac)  # изменение координат игрока 1
         mapa.get_player(p)
         print(p.x, p.y, p.Direction)
         #camera.center(p.x, p.y)

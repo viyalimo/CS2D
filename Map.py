@@ -18,13 +18,23 @@ class Map:
         self.player_y = 0
         self.player_weight = 0
         self.player_height = 0
-        self.speed = 10
+        self.obstac = []
+        self.speed = 15
         self.Direct = "L"
         self.player_Direct = "L"
-        self.map_speed = 10
         self.player_rect = pygame.Rect(self.player_x, self.player_y, self.player_weight, self.player_height)
+        self.sum_obstac = self.L_obst()
 
         # Добавьте здесь код для загрузки карты, тайлов и других параметров.
+
+    def L_obst(self):
+        smo = 0
+        world = self.View_world(self.num_map)[0]
+        for i in range(len(world)):
+            for j in range(len(world[i])):
+                if world[i][j] == "O":
+                    smo += 1
+        return smo
 
     def View_world(self, view_world):
         if view_world == 1:
@@ -51,7 +61,7 @@ class Map:
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
-                     "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
+                     "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBOBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNTBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBTNNNNNNNNNNNNN",
@@ -85,9 +95,10 @@ class Map:
                      "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
                      "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
                      ]
-            self.width = len(world[0]) * self.tile_size - 15
+            self.width = len(world[0]) * self.tile_size - self.speed
             self.height = len(world) * self.tile_size
-            data = (world, self.width, self.height,)
+            data = (world, self.width, self.height)
+
         return data
 
     def DRAWMAP(self, win, camera, player):
@@ -107,41 +118,20 @@ class Map:
                     tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
                     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
                     win.blit(self.imbg2, shifted_tile_rect)
-                elif world[row][col] == 'N':
-                    tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
-                    shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
-                    win.blit(self.imbg4, shifted_tile_rect)
+                # elif world[row][col] == 'N':
+                #     tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
+                #     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
+                #     win.blit(self.imbg4, shifted_tile_rect)
                 elif world[row][col] == "O":
                     tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
                     obstacle = Obstacle(x, y, tile_Size, tile_Size, "Red")
+                    if len(self.obstac) < self.sum_obstac:
+                        self.obstac.append((x, y, tile_Size))
                     shifted_tile_rect = camera.apply(tile_rect)
                     self.obstacles.append(obstacle)  # Добавляем препятствие в список
                     win.blit(self.imbg2, shifted_tile_rect)
                 else:
                     pygame.draw.rect(win, 'blue', camera.apply(pygame.Rect(x, y, tile_Size, tile_Size)))
-        for obstacle in self.obstacles:
-            if player.anim_rect.colliderect(obstacle.rect):
-                print("TRUE")
-                # Если есть столкновение между игроком и препятствием, установите скорость игрока в ноль
-                if player.Direction == "R":  # Если игрок двигается вправо
-                    self.Direct = "R"
-                    self.player_rect.x = obstacle.rect.left - self.player_rect.width
-                elif self.player_Direct == "L":  # Если игрок двигается влево
-                    self.speed = 0
-                    self.Direct = "L"
-                    self.player_rect.x = obstacle.rect.right
-                else:
-                    self.speed = 10
-                if self.player_Direct == "D":  # Если игрок двигается вниз
-                    self.speed = 0
-                    self.Direct = "D"
-                    self.player_rect.y = obstacle.rect.top - self.player_rect.height
-                elif self.player_Direct == "U":  # Если игрок двигается вверх
-                    self.Direct = "U"
-                    self.speed = 0
-                    self.player_rect.y = obstacle.rect.bottom
-                else:
-                    self.speed = 0
         return win
 
     def H_W(self):

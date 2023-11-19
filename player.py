@@ -5,6 +5,7 @@ from Character import Animation1
 class Player:
     def __init__(self, x, y, Direction):
         # self.connected = True
+        self.tile_size = None
         self.map_height = 0
         self.map_weight = 0
         self.player_weight = 0
@@ -54,29 +55,47 @@ class Player:
                 self.run = False
         ticreite.tick(25)
 
-
-    def move(self, camera):
+    def move(self, camera, obstacles):
         now_press = pygame.key.get_pressed()
+        player_dx, player_dy = 0, 0
+        camera_dx, camera_dy = 0, 0
         if now_press[pygame.K_LEFT] or now_press[pygame.K_a]:
             self.run = True
-            self.x -= self.speed
             self.Direction = "L"
-            camera.x += self.speed
+            player_dx -= self.speed
+            camera_dx += self.speed
+
         if now_press[pygame.K_RIGHT] or now_press[pygame.K_d]:
             self.run = True
             self.Direction = 'R'
-            self.x += self.speed
-            camera.x -= self.speed
+            player_dx += self.speed
+            camera_dx -= self.speed
+
         if now_press[pygame.K_UP] or now_press[pygame.K_w]:
             self.run = True
-            self.y -= self.speed
             self.Direction = "U"
-            camera.y += self.speed
+            player_dy -= self.speed
+            camera_dy += self.speed
+
         if now_press[pygame.K_DOWN] or now_press[pygame.K_s]:
             self.run = True
-            self.y += self.speed
             self.Direction = "D"
-            camera.y -= self.speed
+            player_dy += self.speed
+            camera_dy -= self.speed
+
+        self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width, self.anim_rect.height)
+        for obstacle in obstacles:
+            obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[2])
+            if self.anim_rect.colliderect(obstacle_rect):
+                player_dx, player_dy = 0, 0
+                camera_dx, camera_dy = 0, 0
+                break  # Прекратить проверку столкновения, если уже произошло
+
+        self.x += player_dx
+        self.y += player_dy
+        camera.x += camera_dx
+        camera.y += camera_dy
+
         self.x = max(self.scr_weight // 2, min(self.x, self.map_weight - self.scr_weight // 2))
         self.y = max(self.scr_height // 2, min(self.y, self.map_height - self.scr_height // 2))
         self.update(camera)
@@ -90,7 +109,8 @@ class Player:
 
         #  print(self.x, self.y, self.Direction)
 
-    def get_map(self, weight, height):
+    def get_map(self, weight, height, tile_size):
+        self.tile_size = tile_size
         self.map_weight = weight
         self.map_height = height
 
