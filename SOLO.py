@@ -6,7 +6,7 @@ from player import Player
 
 def redrawWindow(win, player, mapa, camera, weight, height):
     win.fill('black')
-    win = mapa.DRAWMAP(win, camera)
+    win = mapa.DRAWMAP(win, camera, player)
     player.draw(win)
     pygame.display.update()
 

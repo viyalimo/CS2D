@@ -9,8 +9,10 @@ class Map:
         self.width = None
         self.height = None
         self.tile_size = 50
-        self.imbg1 = pygame.image.load('images/обычная трава.png').convert_alpha()
+        self.imbg1 = pygame.image.load('images/oh shit.jpg').convert_alpha()
         self.imbg2 = pygame.image.load('images/препятствие.png').convert_alpha()
+        self.imbg3 = pygame.image.load('images/обычная трава.png').convert_alpha()
+        self.imbg4 = pygame.image.load('images/ground.jpg').convert_alpha()
         self.obstacles = []  # Список для хранения объектов препятствий
         self.player_x = 0
         self.player_y = 0
@@ -88,7 +90,7 @@ class Map:
             data = (world, self.width, self.height,)
         return data
 
-    def DRAWMAP(self, win, camera):
+    def DRAWMAP(self, win, camera, player):
         world = self.View_world(self.num_map)[0]
         tile_Size = 50
         win.fill('black')
@@ -105,6 +107,10 @@ class Map:
                     tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
                     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
                     win.blit(self.imbg2, shifted_tile_rect)
+                elif world[row][col] == 'N':
+                    tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
+                    shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
+                    win.blit(self.imbg4, shifted_tile_rect)
                 elif world[row][col] == "O":
                     tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
                     obstacle = Obstacle(x, y, tile_Size, tile_Size, "Red")
@@ -114,10 +120,10 @@ class Map:
                 else:
                     pygame.draw.rect(win, 'blue', camera.apply(pygame.Rect(x, y, tile_Size, tile_Size)))
         for obstacle in self.obstacles:
-            if self.player_rect.colliderect(obstacle.rect):
+            if player.anim_rect.colliderect(obstacle.rect):
+                print("TRUE")
                 # Если есть столкновение между игроком и препятствием, установите скорость игрока в ноль
-                if self.player_Direct == "R":  # Если игрок двигается вправо
-                    self.speed = 0
+                if player.Direction == "R":  # Если игрок двигается вправо
                     self.Direct = "R"
                     self.player_rect.x = obstacle.rect.left - self.player_rect.width
                 elif self.player_Direct == "L":  # Если игрок двигается влево

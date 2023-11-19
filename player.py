@@ -19,15 +19,17 @@ class Player:
         self.speed = 15
         self.anim = 0
         self.run = False
+        self.anim_surface = Animation1(self.Direction)[self.anim]
+        self.anim_rect = self.anim_surface.get_rect()
 
     def draw(self, win):
         ticreite = pygame.time.Clock()
-        anim_surface = Animation1(self.Direction)[self.anim]
-        anim_rect = anim_surface.get_rect()
-        self.player_weight = anim_rect.width
-        self.player_height = anim_rect.height
-        anim_rect.topleft = self.rect
-        win.blit(anim_surface, self.start_pos)
+        self.anim_surface = Animation1(self.Direction)[self.anim]
+        self.anim_rect = self.anim_surface.get_rect()
+        self.player_weight = self.anim_rect.width
+        self.player_height = self.anim_rect.height
+        self.anim_rect.topleft = self.rect
+        win.blit(self.anim_surface, self.start_pos)
         if self.anim < 3 and self.run:
             self.anim += 1
         else:
