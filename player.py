@@ -4,13 +4,14 @@ from Character import Animation1
 
 class Player:
     def __init__(self, x, y, Direction):
+        pygame.init()
         # self.connected = True
         self.tile_size = None
         self.map_height = 0
         self.map_weight = 0
         self.player_weight = 0
         self.player_height = 0
-        self.Direction = "L"
+        self.Direction = Direction
         self.scr_weight = 0
         self.scr_height = 0
         self.start_pos = (x, y)
@@ -20,8 +21,8 @@ class Player:
         self.speed = 15
         self.anim = 0
         self.run = False
-        self.anim_surface = Animation1(self.Direction)[self.anim]
-        self.anim_rect = self.anim_surface.get_rect()
+        self.anim_surface = None
+        self.anim_rect = None
 
     def draw(self, win):
         ticreite = pygame.time.Clock()
@@ -56,6 +57,8 @@ class Player:
         ticreite.tick(25)
 
     def move(self, camera, obstacles):
+        self.anim_surface = Animation1(self.Direction)[self.anim]
+        self.anim_rect = self.anim_surface.get_rect()
         now_press = pygame.key.get_pressed()
         player_dx, player_dy = 0, 0
         camera_dx, camera_dy = 0, 0
@@ -83,7 +86,8 @@ class Player:
             player_dy += self.speed
             camera_dy -= self.speed
 
-        self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width, self.anim_rect.height)
+        self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width,
+                                     self.anim_rect.height)
         for obstacle in obstacles:
             obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[2])
             if self.anim_rect.colliderect(obstacle_rect):

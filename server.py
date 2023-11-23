@@ -2,15 +2,16 @@ import socket
 from _thread import *
 from player import Player
 import pickle
+import pygame
 
 
 def threaded_client(con, player):
     print(player, "номер игрока")
     con.send(pickle.dumps(players[player]))
-    reply = ""
+    reply = " "
     while True:
         try:
-            data = pickle.loads(con.recv(2048))
+            data = pickle.loads(con.recv(4048))
             players[player] = data
 
             if not data:
@@ -34,6 +35,7 @@ def threaded_client(con, player):
 
 
 if __name__ == "__main__":
+    pygame.init()
     server = str(socket.gethostbyname_ex(socket.gethostname())[-1][-1])  # добавление ID сервера
     print(socket.gethostbyname_ex(socket.gethostname())[-1][-1])
     port = 5555

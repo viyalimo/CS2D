@@ -1,29 +1,11 @@
 import pygame
 
 
-class Character:
-    posx = None  # место появления игрока на карте по координате x
-    posy = None
-    speed = None  # скорость персонажа
-    x_stop = None  # максимальное значение где игрок может находится на карте
-    y_stop = None
-    # анимации персонажа
-    walk_right = []
-    walk_left = []
-    walk_up = []
-    walk_down = []
-    walk_all = []
-
-
-ch1 = Character()
-ch1.posx = 400
-ch1.posy = 400
-ch1.speed = 1
-ch1.x_stop = 1440
-ch1.y_stop = 660
+pygame.init()
 
 
 def Animation1(an):  # функция для передачи массивов с анимациями в класс Desplay
+    pygame.init()
     if an == "R":
         walk_right = [
             pygame.image.load('Character1/Right/право 1.png').convert_alpha(),

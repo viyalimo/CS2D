@@ -101,21 +101,20 @@ class Map:
 
         return data
 
-    def DRAWMAP(self, win, camera, player):
+    def DRAWMAP(self, win, camera):
         world = self.View_world(self.num_map)[0]
-        tile_Size = 50
         win.fill('black')
         for row in range(len(world)):
             for col in range(len(world[row])):
-                x = col * tile_Size
-                y = row * tile_Size
+                x = col * self.tile_size
+                y = row * self.tile_size
 
                 if world[row][col] == 'B':
-                    tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
+                    tile_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
                     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
                     win.blit(self.imbg1, shifted_tile_rect)
                 elif world[row][col] == 'T':
-                    tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
+                    tile_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
                     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
                     win.blit(self.imbg2, shifted_tile_rect)
                 # elif world[row][col] == 'N':
@@ -123,15 +122,15 @@ class Map:
                 #     shifted_tile_rect = camera.apply(tile_rect)  # Применить сдвиг к тайлу
                 #     win.blit(self.imbg4, shifted_tile_rect)
                 elif world[row][col] == "O":
-                    tile_rect = pygame.Rect(x, y, tile_Size, tile_Size)
-                    obstacle = Obstacle(x, y, tile_Size, tile_Size, "Red")
+                    tile_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
+                    obstacle = Obstacle(x, y, self.tile_size, self.tile_size, "Red")
                     if len(self.obstac) < self.sum_obstac:
-                        self.obstac.append((x, y, tile_Size))
+                        self.obstac.append((x, y, self.tile_size))
                     shifted_tile_rect = camera.apply(tile_rect)
                     self.obstacles.append(obstacle)  # Добавляем препятствие в список
                     win.blit(self.imbg2, shifted_tile_rect)
                 else:
-                    pygame.draw.rect(win, 'blue', camera.apply(pygame.Rect(x, y, tile_Size, tile_Size)))
+                    pygame.draw.rect(win, 'blue', camera.apply(pygame.Rect(x, y, self.tile_size, self.tile_size)))
         return win
 
     def H_W(self):

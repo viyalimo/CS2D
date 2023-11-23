@@ -6,7 +6,7 @@ from player import Player
 
 def redrawWindow(win, player, mapa, camera, weight, height):
     win.fill('black')
-    win = mapa.DRAWMAP(win, camera, player)
+    win = mapa.DRAWMAP(win, camera)
     player.draw(win)
     pygame.display.update()
 
@@ -23,9 +23,7 @@ def main(weight, height, mapa, camera):
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
-        mapa.get_player(p)
         p.move(camera, mapa.obstac)  # изменение координат игрока 1
-        mapa.get_player(p)
         print(p.x, p.y, p.Direction)
         #camera.center(p.x, p.y)
         # print(camera.x, camera.y)
