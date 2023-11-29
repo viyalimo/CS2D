@@ -6,15 +6,21 @@ from player import Player
 from network import Network
 import pygame_gui
 import socket
+from Bacground import background_anim
 
 
 def escape_press(screen, weight, height):  # меню во время игры
     running = True
     green_button = Button(weight/2 - (200/2), 400, 200, 100, 'продолжить', 'Button/play_button_not_press2.png', 'Button/green_button_press.png')
     red_button = Button(weight/2 - (200/2), (green_button.y+green_button.height), 200, 100, 'Выйти', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    i = 0
+    clock = pygame.time.Clock()
     while running:
         pygame.display.flip()
         screen.fill((0, 0, 0))
+        an, ln = background_anim(i, weight, height)
+        an_rect = an.get_rect()
+        screen.blit(an, an_rect)
         font = pygame.font.Font(None, 72)
         text_surface = font.render(f"Ваш IP:{socket.gethostbyname_ex(socket.gethostname())[-1][-1]}", True, [255, 255, 255])
         text_rect = text_surface.get_rect(center=(weight / 2, 50))
@@ -37,10 +43,15 @@ def escape_press(screen, weight, height):  # меню во время игры
                 running = False
                 return None
 
+        if i < (ln-1):
+            i += 1
+        else:
+            i = 0
         green_button.check_hover(pygame.mouse.get_pos())
         green_button.draw(screen)
         red_button.check_hover(pygame.mouse.get_pos())
         red_button.draw(screen)
+        clock.tick(20)
 
 
 def redrawWindow(win, player, player2, mapa, camera):  # отрисовка основного геймплея
@@ -106,9 +117,14 @@ def host_con(screen, screen_weight, screen_height):  # меню хоста
     yellow_button_HOST = Button(screen_weight / 2 - (300 / 2), 400, 300, 100, "создать", 'Button/yellow_button.png')
     yellow_button_CON = Button(screen_weight / 2 - (300 / 2), (yellow_button_HOST.y + yellow_button_HOST.height), 300, 100, 'присоединиться', 'Button/yellow_button.png')
     red_back = Button(screen_weight / 2 - (300/2), (yellow_button_CON.y + yellow_button_CON.height), 300, 100, 'назад', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    i = 0
+    clock = pygame.time.Clock()
     while running:
         pygame.display.flip()
         screen.fill((0, 0, 0))
+        an, ln = background_anim(i, screen_weight, screen_height)
+        an_rect = an.get_rect()
+        screen.blit(an, an_rect)
         font = pygame.font.Font(None, 72)
         text_surface = font.render("Button test", True, [255, 255, 255])
         text_rect = text_surface.get_rect(center=(screen_weight / 2, 50))
@@ -127,12 +143,17 @@ def host_con(screen, screen_weight, screen_height):  # меню хоста
                 running = False
                 return None
 
+        if i < (ln-1):
+            i += 1
+        else:
+            i = 0
         yellow_button_HOST.draw(screen)
         yellow_button_HOST.check_hover(pygame.mouse.get_pos())
         yellow_button_CON.draw(screen)
         yellow_button_CON.check_hover(pygame.mouse.get_pos())
         red_back.draw(screen)
         red_back.check_hover(pygame.mouse.get_pos())
+        clock.tick(20)
 
 
 class Button:
@@ -216,11 +237,16 @@ class Button:
         # Создание кнопки
         green_button_CON = Button(weight/2-(200 / 2), 400, 200, 100, 'Начать игру!', 'Button/play_button_not_press2.png', 'Button/green_button_press.png')
         red_button_back = Button(weight/2-(200/2), (green_button_CON.y + green_button_CON.height), 200, 100, 'назад', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+        i = 0
+        clock = pygame.time.Clock()
 
         while running:
             time_delta = clock.tick(60) / 1000.0
             pygame.display.flip()
             screen.fill([0, 0, 0])
+            an, ln = background_anim(i, weight, height)
+            an_rect = an.get_rect()
+            screen.blit(an, an_rect)
             font = pygame.font.Font(None, 72)
             text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
             text_rect = text_surface.get_rect(center=(weight / 2, 50))
@@ -241,12 +267,18 @@ class Button:
                     return None
                 manager.process_events(event)
 
+            if i < (ln-1):
+                i += 1
+            else:
+                i = 0
+
             manager.update(time_delta)
             manager.draw_ui(screen)
             green_button_CON.check_hover(pygame.mouse.get_pos())
             green_button_CON.draw(screen)
             red_button_back.check_hover(pygame.mouse.get_pos())
             red_button_back.draw(screen)
+            clock.tick(20)
 
     def green_escape(self, event):  # запуск игры из escape
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
