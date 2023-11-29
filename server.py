@@ -1,58 +1,1 @@
-import socket
-from _thread import *
-from player import Player
-import pickle
-import pygame
-
-
-def threaded_client(con, player):
-    print(player, "номер игрока")
-    con.send(pickle.dumps(players[player]))
-    reply = " "
-    while True:
-        try:
-            data = pickle.loads(con.recv(4048))
-            players[player] = data
-
-            if not data:
-                print("Disconnected")
-                break
-            else:
-                if player == 1:
-                    reply = players[0]
-                else:
-                    reply = players[1]
-
-                print("Received: ", data)
-                print("Sending: ", reply)
-
-            con.sendall(pickle.dumps(reply))
-        except:
-            break
-
-    print("Lost connection")
-    con.close()
-
-
-if __name__ == "__main__":
-    pygame.init()
-    server = str(socket.gethostbyname_ex(socket.gethostname())[-1][-1])  # добавление ID сервера
-    print(socket.gethostbyname_ex(socket.gethostname())[-1][-1])
-    port = 5555
-
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # создание TCP сокета
-    currentPlayer = 0
-    try:
-        s.bind((server, port))
-    except socket.error as e:
-        str(e)
-
-    s.listen(2)  # ожидание подключения
-    print("Waiting for a connection, Server Started")
-
-    players = [Player(750, 400, "L"), Player(850, 400, "L")]
-    while True:
-        conn, addr = s.accept()
-        print("Connected to:", addr)
-        start_new_thread(threaded_client, (conn, currentPlayer))  # выделение потока
-        currentPlayer += 1
+import socketimport threadingimport pickleclass Server:    def __init__(self, max_client, host):        self.max_client = max_client        self.host_server = host        self.port = 5555        self.server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)        self.max_size_msg = 2000        self.Locker = threading.Lock()        self.qplayer = 0        print(f'Server Listen at {self.host_server}:{self.port}')        try:            self.server_sock.bind((self.host_server, self.port))        except Exception as e:            print(f"Exception bind: {e}")        self.server_sock.listen(max_client)        self.player_data = ([750, 400, "L", None], [750, 400, 'L', None])        self.members = []        while True:            conn, addr = self.server_sock.accept()            threading.Thread(target=self.Listen, args=(conn, addr)).start()    def Listen(self, conn, addr):        while True:            msg = pickle.loads(conn.recv(self.max_size_msg))            print('msg', msg)            client_id = addr[1]            if client_id not in self.members:                self.members.append(client_id)                self.qplayer = len(self.members)            if msg == 'CONNECT':                self.connect(conn, client_id)            else:                self.Sent(msg, conn, client_id)    def Sent(self, msg, conn, client_id):            for member in self.members:                if member == client_id:                    self.player_data[self.members.index(client_id)][0] = msg[0]                    self.player_data[self.members.index(client_id)][1] = msg[1]                    self.player_data[self.members.index(client_id)][2] = msg[2]                    self.player_data[self.members.index(client_id)][3] = msg[3]                    if self.members.index(client_id) == 1:                        conn.send(pickle.dumps((self.player_data[0], self.qplayer)))                        # print('client id 1')                        # print(pickle.loads(pickle.dumps((self.player_data[0], self.qplayer))), 'player 2222222222222222')                    else:                        conn.send(pickle.dumps((self.player_data[1], self.qplayer)))                        # print('client id 0')                        # print(pickle.loads(pickle.dumps((self.player_data[1], self.qplayer))), 'player 1111111111111111')            threading.enumerate()    def connect(self, conn, client_id):        print('connect', self.qplayer)        if self.qplayer == 1:            print('1 player')            conn.send(pickle.dumps((self.player_data[self.members.index(client_id)], 'None', self.qplayer)))        if self.qplayer == 2:            print('2 player')            if self.members.index(client_id) == 1:                conn.send(pickle.dumps((self.player_data[self.members.index(client_id)], self.player_data[0], self.qplayer)))            else:                conn.send(pickle.dumps((self.player_data[self.members.index(client_id)], self.player_data[1], self.qplayer)))

@@ -1,13 +1,10 @@
 import pygame
-from pygame import Surface
-from Map import Map
-from Netv import Network
-from Camera import Camera
-from player import Player
+import sys
+from Button import Button
 
 
 def redrawWindow(win, player, player2, mapa, camera, widt, heigh):
-    print(player2, "sheet")
+    print(player2)
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
     player.draw(win)
@@ -21,46 +18,41 @@ def redrawWindow(win, player, player2, mapa, camera, widt, heigh):
     pygame.display.update()
 
 
-def main(weight, height, mapa, camera):
-    run = True
-    n = Network()
-    players_data = n.getP()
-    pl1 = players_data[0]
-    pl2 = players_data[1]
-    p = Player(pl1[0], pl1[1], pl1[2])
-    p2 = Player(pl2[0], pl2[1], pl2[2])
-    p.get_map(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
-    print(mapa.H_W()[0], mapa.H_W()[1])
-    p.get_src(weight, height)
-    clock = pygame.time.Clock()
-    current_player = 0
-    solo_player = None
-    while run:
-        print("start", n.update(p))
-        if n.update(p)[0] == 2:
-            a = n.update(p)[1]
-            # print(a, "players == 2")
-            # print(a[0], 'toplayer')
-            p2.x = a[0]
-            p2.y = a[1]
-            p2.Direction = a[2]
-            solo_player = p2
+def main_menu(green_button, screen, screen_weight, red_button, screen_height):
+    running = True
+    while running:
+        screen.fill((0, 0, 0))
+        font = pygame.font.Font(None, 72)
+        text_surface = font.render("Button test", True, [255, 255, 255])
+        text_rect = text_surface.get_rect(center=(screen_weight/2, 50))
+        screen.blit(text_surface, text_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
+                running = False
                 pygame.quit()
-        p.move(camera, mapa.obstac)
-        print(p.x, p.y, p.Direction)
+                sys.exit()
 
-        redrawWindow(screen, p, solo_player, mapa, camera, weight, height)
-        clock.tick(60)  # FPS
+            green_button.green_handle_event(event, screen, screen_weight, screen_height)
+            red_button.red_handle_event(event)
+
+        green_button.check_hover(pygame.mouse.get_pos())
+        green_button.draw(screen)
+        red_button.check_hover(pygame.mouse.get_pos())
+        red_button.draw(screen)
+        pygame.display.flip()
+
+
+def start():
+    button_weight, button_height = 200, 100
+    screen_weight, screen_height = 1500, 800  # размер окна приложения
+    screen = pygame.display.set_mode([screen_weight, screen_height])  # создание окна приложения
+    pygame.display.set_caption("CS2D")  # название окна приложенния
+    green_button = Button(screen_weight/2 - (200/2), 400, button_weight, button_height, 'play', 'Button/play_button_not_press2.png', 'Button/green_button_press.png')
+    red_button = Button(screen_weight/2 - (200/2), (green_button.y+green_button.height), button_weight, button_height, 'Exit', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    main_menu(green_button, screen, screen_weight, red_button, screen_height)
 
 
 if __name__ == "__main__":
-    screen_weight, screen_height = 1500, 800  # размер окна приложения
-    screen = pygame.display.set_mode((screen_weight, screen_height))  # создание окна приложения
-    pygame.display.set_caption("CS2D")  # название окна приложенния
-    mapa = Map(1)
-    camera = Camera(screen_weight, screen_height, mapa.H_W()[0], mapa.H_W()[1])
-    main(screen_weight, screen_height, mapa, camera)  # переход в функцию main с передачей высоты 'и ширины окна
+    pygame.init()
+    start()

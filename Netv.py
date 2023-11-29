@@ -1,16 +1,37 @@
 import socket
 import pickle
+import threading
+from Serv import Server
 
 class Network:
-    def __init__(self):
-        self.host = '192.168.0.104'
+    def __init__(self, host_con):
         self.port = 5555
-        self.server = (self.host, self.port)
         self.s_c = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.Max_size = 50
         self.p = self.connect()
         self.players = 0
         self.log = []
+        self.run_server = None
+
+        if host_con == "HOST":
+            self.host = str(socket.gethostbyname_ex(socket.gethostname())[-1][-1])
+            self.server = (self.host, self.port)
+            self.start_server = threading.Thread(target=self.start_server).start()
+            self.start_game()
+            print('sheet')
+        else:
+            self.host = str(input("Введите адрес сервера: "))
+            self.server = (self.host, self.port)
+            print("вы присоеденились к серверу")
+            self.start_game()
+
+    def start_server(self):
+        self.run_server = Server(10, self.host)
+        self.run_server.start_new_thread()
+
+    def start_game(self):
+        print('start_game')
+        self.p = self.connect()
 
     def connect(self):
         try:

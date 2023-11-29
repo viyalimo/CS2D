@@ -1,53 +1,65 @@
-class Game:
-    def __init__(self, id):
-        self.p1Went = False
-        self.p2Went = False
-        self.ready = False
-        self.id = id
-        self.moves = [None, None]
-        self.wins = [0, 0]
-        self.ties = 0
+import tkinter as tk
+import numpy as np
+from scipy.interpolate import lagrange
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-    def get_player_move(self, p):
-        """:param p: [0, 1]:
-        :return: Move"""
-        return self.moves[p]
 
-    def player(self, player, move):
-        self.moves[player] = move
-        if player == 0:
-            self.p1Went = True
-        else:
-            self.p2Went = True
+def lagrange_interpolation(x, y, t):
+    """
+    Вычисляет значение интерполяционного многочлена Лагранжа в точке t.
+    """
+    poly = lagrange(x, y)
+    return poly(t)
 
-    def connected(self):
-        return self.ready
 
-    def bothWent(self):
-        return self.p1Went and self.p2Went
+def plot_interpolation(x, y):
+    """
+    Строит график интерполяции.
+    """
+    t_values = np.linspace(min(x), max(x), 1000)
+    y_values = lagrange_interpolation(x, y, t_values)
 
-    def winner(self):
+    plt.plot(x, y, 'o', label='Data Points')
+    plt.plot(t_values, y_values, label='Lagrange Interpolation')
+    plt.xlabel('t')
+    plt.ylabel('y')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
-        p1 = self.moves[0].upper()[0]
-        p2 = self.moves[1].upper()[0]
 
-        winner = -1
-        if p1 == "R" and p2 == "S":
-            winner = 0
-        elif p1 == "S" and p2 == "R":
-            winner = 1
-        elif p1 == "P" and p2 == "R":
-            winner = 0
-        elif p1 == "R" and p2 == "P":
-            winner = 1
-        elif p1 == "S" and p2 == "P":
-            winner = 0
-        elif p1 == "P" and p2 == "S":
-            winner = 1
+def draw_circle(x, y, canvas):
+    """
+    Рисует круг в окне Tkinter с использованием точек интерполяции.
+    """
+    for i in range(len(x)):
+        canvas.create_oval(x[i] - 5, y[i] - 5, x[i] + 5, y[i] + 5, fill='blue')
 
-        return winner
 
-    def resetWent(self):
-        self.p1Went = False
-        self.p2Went = False
+def main():
+    # Задаем точки для интерполяции
+    x_points = np.array([1, np.sqrt(2)/2, 0, -np.sqrt(2)/2, -1, -np.sqrt(2)/2, 0, np.sqrt(2)/2, 1])
+    y_points = np.array([0, np.sqrt(2)/2, 1, np.sqrt(2)/2, 0, -np.sqrt(2)/2, -1, -np.sqrt(2)/2, 0])
 
+    # Строим график интерполяции
+    plot_interpolation(x_points, y_points)
+
+    # Создаем окно Tkinter
+    root = tk.Tk()
+    root.title('Interpolation Circle')
+
+    # Создаем холст для отображения графики в окне Tkinter
+    figure, ax = plt.subplots()
+    canvas = FigureCanvasTkAgg(figure, master=root)
+    widget = canvas.get_tk_widget()
+    widget.pack()
+
+    # Рисуем круг на холсте
+    draw_circle(x_points, y_points, canvas)
+
+    root.mainloop()
+
+
+if __name__ == "__main__":
+    main()
