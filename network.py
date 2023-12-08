@@ -14,8 +14,7 @@ class Network:
         if HOST_CL == "HOST":
             self.host = str(socket.gethostbyname_ex(socket.gethostname())[-1][-1])
             self.server = (self.host, self.port)
-            thr_serv = threading.Thread(target=self.start_server, name="thr-server", daemon=True)
-            thr_serv.start()
+            threading.Thread(target=self.start_server, name="thr-server").start()
         else:
             self.host = str(HOST_CL)
             self.server = (self.host, self.port)
@@ -24,7 +23,7 @@ class Network:
         server = Server(self.max_client, self.host)
 
     def connect(self):
-        #try:
+        try:
             self.s_c.connect(self.server)
             self.s_c.send(pickle.dumps('CONNECT'))
             print('Вы присоединились к серверу!')
@@ -32,22 +31,36 @@ class Network:
             self.qplayer = start_data[2]
             if start_data[1] == 'None':
                 p2 = None
-                #print('None')
             else:
                 p2 = start_data[1]
             return start_data[0], p2
-        # except Exception as e:
-        #     print(f"Exception connect: {e}")
+        except Exception as e:
+            print(f"Exception connect: {e}")
 
     def Send(self, player):
-        # try:
+        try:
             self.s_c.send(pickle.dumps((player.x, player.y, player.Direction, player.anim)))
             pos = pickle.loads(self.s_c.recv(self.max_size))
-            #print(pos, "posssssssssssssssssssss")
-            self.qplayer = pos[1]
-            if self.qplayer == 1:
-                return None
+            print(pos, "posssssssssssssssssssss")
+            true_pos = pos[0]
+            if (true_pos[0] == player.x) and (true_pos[1] == player.y):
+                self.qplayer = pos[2]
+                if self.qplayer == 1:
+                    return None, true_pos
+                else:
+                    return pos[1], true_pos
             else:
-                return pos[0]
-        # except Exception as e:
-        #     print(f'Exception send: {e}')
+                self.qplayer = pos[2]
+                if self.qplayer == 1:
+                    return None, true_pos
+                else:
+                    return pos[1], true_pos
+        except Exception as e:
+            print(f'Exception send: {e}')
+
+    def Disconect(self):
+        try:
+            self.s_c.send(pickle.dumps('Disconect'))
+        except Exception as e:
+            print(f'ERROR: {e}')
+
