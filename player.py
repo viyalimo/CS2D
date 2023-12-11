@@ -96,7 +96,7 @@ class Player:
             player_dy += self.speed
             camera_dy -= self.speed
 
-        self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width,self.anim_rect.height)
+        self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width, self.anim_rect.height)
 
         for obstacle in obstacles:
             obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[2])

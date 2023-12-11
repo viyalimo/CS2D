@@ -1,6 +1,8 @@
 import pygame
 import sys
 import math
+import time
+from scipy.interpolate import CubicSpline
 
 # Инициализация Pygame
 pygame.init()
@@ -20,7 +22,7 @@ GRID_SIZE = 50
 OBSTACLE_SIZE = GRID_SIZE
 
 # Создание окна
-screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+screen = pygame.display.set_mode([WINDOW_WIDTH, WINDOW_HEIGHT])
 pygame.display.set_caption("Простая 2D игра")
 
 # Создание игрока
@@ -72,14 +74,23 @@ while running:
     player_x = max(0, min(player_x, WINDOW_WIDTH - player_size))
     player_y = max(0, min(player_y, WINDOW_HEIGHT - player_size))
 
+    bullet_speed = 5
     # Обработка стрельбы
     if pygame.mouse.get_pressed()[0]:  # Левая кнопка мыши
         mouse_x, mouse_y = pygame.mouse.get_pos()
+        print(f'mouse_x: {mouse_x}, player_x:{player_x}, mouse_y: {mouse_y}, player_y: {player_y}')
         angle = math.atan2(mouse_y - (player_y + player_size / 2), mouse_x - (player_x + player_size / 2))
-        bullet_speed = 5
+
+        # Используем интерполяцию сплайнами для просчета траектории пули
+        t = [0, 1]  # параметр t для интерполяции
+        control_points = [(player_x + player_size / 2, player_y + player_size / 2),
+                          (mouse_x, mouse_y)]  # начальная и конечная точки
+        cs = CubicSpline(t, control_points, bc_type='clamped')  # создаем кубический сплайн
+
         bullet_x = player_x + player_size / 2
         bullet_y = player_y + player_size / 2
-        bullets.append([bullet_x, bullet_y, angle])
+        bullets.append([bullet_x, bullet_y, angle, cs])
+
 
     # Перемещение пуль
     bullets_to_remove = []

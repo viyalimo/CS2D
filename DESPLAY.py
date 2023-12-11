@@ -7,6 +7,7 @@ from Map import Map
 from Camera import Camera
 import pygame_gui
 from network import Network
+from bullets import Bullet
 
 
 def escape_press(screen, weight, height, n):  # меню во время игры
@@ -60,7 +61,7 @@ def escape_press(screen, weight, height, n):  # меню во время игр�
         clock.tick(120)
 
 
-def redrawWindow(win, player, player2, mapa, camera):  # отрисовка основного геймплея
+def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_height):  # отрисовка основного геймплея
     # print(player2)
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
@@ -72,14 +73,22 @@ def redrawWindow(win, player, player2, mapa, camera):  # отрисовка ос
             pass
         else:
             player2.Draw_player2(win, player2, camera)
+    for bullet in bullets:
+        # if not win.get_rect().collidepoint([bullet[0][0], bullet[0][1]]):
+            b_img = pygame.Surface([10, 4]).convert_alpha()
+            b_img.fill([255, 255, 0])
+            b_img = pygame.transform.rotate(b_img, bullet[1])
+            bullet_rect = b_img.get_rect(center=[bullet[0][0], bullet[0][1]])
+            win.blit(b_img, camera.apply(bullet_rect))
     pygame.display.update()
 
 
 def main(screen, weight, height, mapa, camera, inf):  # основной цикл
     run = True
     p2 = None
+    bullets = []
     n = Network(str(inf))
-    pl1, pl2 = n.connect()
+    pl1, pl2 = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
     p = Player(pl1[0], pl1[1], pl1[2])
     if isinstance(pl2, list):
         p2 = Player(pl2[0], pl2[1], pl2[2])
@@ -90,7 +99,21 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
     p.get_src(weight, height)
     clock = pygame.time.Clock()
     while run:
-        data, true_pos = n.Send(p)
+        coord_bul = []
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    escape_press(screen, weight, height, n)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+                mx = p.x + (mx - p.coordinateblit[0])
+                my = p.y + (my - p.coordinateblit[1])
+                coord_bul.append([p.x + p.player_weight/2, p.y + p.player_height/2, mx, my])
+        data, true_pos, bullets = n.Send(p, coord_bul)
         # print(data, "PLAYER 1")
         p.x = true_pos[0]
         p.y = true_pos[1]
@@ -105,18 +128,10 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                 p2.Direction = data[2]
                 p2.anim = data[3]
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    escape_press(screen, weight, height, n)
         p.move(camera, mapa.obstac)
         # print('camera:', camera.x, camera.y, 'player:', p.x, p.y, p.Direction)
         # print(f'c_x: {camera.x}, c_y: {camera.y}, p_x: {p.x}, p_y: {p.y}')
-        redrawWindow(screen, p, p2, mapa, camera)
+        redrawWindow(screen, p, p2, mapa, camera, bullets, weight, height)
         clock.tick(60)  # FPS
 
 
