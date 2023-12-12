@@ -7,7 +7,6 @@ from Map import Map
 from Camera import Camera
 import pygame_gui
 from network import Network
-from bullets import Bullet
 
 
 def escape_press(screen, weight, height, n):  # меню во время игры
@@ -61,6 +60,59 @@ def escape_press(screen, weight, height, n):  # меню во время игр�
         clock.tick(120)
 
 
+def connect(screen, weight, height):
+    running = True
+    clock = pygame.time.Clock()
+    # Создание менеджера элементов пользовательского интерфейса
+    manager = pygame_gui.UIManager((weight, height))
+    # Создание поля ввода текста
+    input_box = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect([weight / 2 - (400 / 2), 300], [400, 50]), manager=manager)
+    # Создание кнопки
+    green_button_CON = Button(weight / 2 - (200 / 2), 400, 200, 100, 'Начать игру!',
+                              'Button/play_button_not_press2.png', 'Button/green_button_press.png')
+    red_button_back = Button(weight / 2 - (200 / 2), (green_button_CON.y + green_button_CON.height), 200, 100, 'назад',
+                             'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    i = 0
+    clock = pygame.time.Clock()
+    while running:
+        time_delta = clock.tick(60) / 1000.0
+        pygame.display.flip()
+        screen.fill([0, 0, 0])
+        an, ln = background_anim(i, weight, height)
+        an_rect = an.get_rect()
+        screen.blit(an, an_rect)
+        font = pygame.font.Font(None, 72)
+        text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
+        text_rect = text_surface.get_rect(center=(weight / 2, 50))
+        screen.blit(text_surface, text_rect)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            inf = input_box.text
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    inf = input_box.text
+                    input_box.kill()  # Удаление поля ввода текста
+            green_button_CON.yellow_handle_startcon(event, screen, weight, height, inf)
+            if red_button_back.red_back(event):
+                running = False
+                return None
+            manager.process_events(event)
+        if i < (ln - 1):
+            i += 1
+        else:
+            i = 0
+        manager.update(time_delta)
+        manager.draw_ui(screen)
+        green_button_CON.check_hover(pygame.mouse.get_pos())
+        green_button_CON.draw(screen)
+        red_button_back.check_hover(pygame.mouse.get_pos())
+        red_button_back.draw(screen)
+        clock.tick(60)
+
+
 def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_height):  # отрисовка основного геймплея
     # print(player2)
     win.fill('black')
@@ -75,11 +127,11 @@ def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_he
             player2.Draw_player2(win, player2, camera)
     for bullet in bullets:
         # if not win.get_rect().collidepoint([bullet[0][0], bullet[0][1]]):
-            b_img = pygame.Surface([10, 4]).convert_alpha()
-            b_img.fill([255, 255, 0])
-            b_img = pygame.transform.rotate(b_img, bullet[1])
-            bullet_rect = b_img.get_rect(center=[bullet[0][0], bullet[0][1]])
-            win.blit(b_img, camera.apply(bullet_rect))
+        b_img = pygame.Surface([10, 4]).convert_alpha()
+        b_img.fill([255, 255, 0])
+        b_img = pygame.transform.rotate(b_img, bullet[1])
+        bullet_rect = b_img.get_rect(center=[bullet[0][0], bullet[0][1]])
+        win.blit(b_img, camera.apply(bullet_rect))
     pygame.display.update()
 
 
@@ -112,7 +164,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                 mx, my = pygame.mouse.get_pos()
                 mx = p.x + (mx - p.coordinateblit[0])
                 my = p.y + (my - p.coordinateblit[1])
-                coord_bul.append([p.x + p.player_weight/2, p.y + p.player_height/2, mx, my])
+                coord_bul.append([p.x + p.player_weight / 2, p.y + p.player_height / 2, mx, my])
         data, true_pos, bullets = n.Send(p, coord_bul)
         # print(data, "PLAYER 1")
         p.x = true_pos[0]
@@ -138,8 +190,10 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
 def host_con(screen, screen_weight, screen_height):  # меню хоста
     running = True
     yellow_button_HOST = Button(screen_weight / 2 - (300 / 2), 400, 300, 100, "создать", 'Button/yellow_button.png')
-    yellow_button_CON = Button(screen_weight / 2 - (300 / 2), (yellow_button_HOST.y + yellow_button_HOST.height), 300, 100, 'присоединиться', 'Button/yellow_button.png')
-    red_back = Button(screen_weight / 2 - (300 / 2), (yellow_button_CON.y + yellow_button_CON.height), 300, 100, 'назад', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    yellow_button_CON = Button(screen_weight / 2 - (300 / 2), (yellow_button_HOST.y + yellow_button_HOST.height), 300,
+                               100, 'присоединиться', 'Button/yellow_button.png')
+    red_back = Button(screen_weight / 2 - (300 / 2), (yellow_button_CON.y + yellow_button_CON.height), 300, 100,
+                      'назад', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
     i = 0
     clock = pygame.time.Clock()
     while running:
@@ -184,8 +238,10 @@ def main_menu():
     screen_weight, screen_height = 1500, 800  # размер окна приложения
     screen = pygame.display.set_mode([screen_weight, screen_height])  # создание окна приложения
     pygame.display.set_caption("CS2D")  # название окна приложенния
-    green_button = Button(screen_weight / 2 - (200 / 2), 400, button_weight, button_height, 'play', 'Button/play_button_not_press2.png', 'Button/green_button_press.png')
-    red_button = Button(screen_weight / 2 - (200 / 2), (green_button.y + green_button.height), button_weight, button_height, 'Exit', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
+    green_button = Button(screen_weight / 2 - (200 / 2), 400, button_weight, button_height, 'play',
+                          'Button/play_button_not_press2.png', 'Button/green_button_press.png')
+    red_button = Button(screen_weight / 2 - (200 / 2), (green_button.y + green_button.height), button_weight,
+                        button_height, 'Exit', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
     running = True
     i = 0
 
@@ -285,7 +341,7 @@ class Button:
 
     def yellow_handle_event_CON(self, event, screen, weight, height):  # действие кнопки присоединиться
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
-            self.connect(screen, weight, height)
+            connect(screen, weight, height)
             if self.sound:
                 self.sound.play()
 
@@ -297,61 +353,6 @@ class Button:
             if not isinstance(inf, str):
                 inf = str(inf)
             main(screen, weight, height, mapa, camera, inf)
-
-    def connect(self, screen, weight, height):  # меню кнопки подключения
-        running = True
-        clock = pygame.time.Clock()
-        # Создание менеджера элементов пользовательского интерфейса
-        manager = pygame_gui.UIManager((weight, height))
-        # Создание поля ввода текста
-        input_box = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect([weight / 2 - (400 / 2), 300], [400, 50]), manager=manager)
-
-        # Создание кнопки
-        green_button_CON = Button(weight / 2 - (200 / 2), 400, 200, 100, 'Начать игру!', 'Button/play_button_not_press2.png', 'Button/green_button_press.png')
-        red_button_back = Button(weight / 2 - (200 / 2), (green_button_CON.y + green_button_CON.height), 200, 100, 'назад', 'Button/red_button_not_press.png', 'Button/red_button_press.png')
-        i = 0
-        clock = pygame.time.Clock()
-
-        while running:
-            time_delta = clock.tick(60) / 1000.0
-            pygame.display.flip()
-            screen.fill([0, 0, 0])
-            an, ln = background_anim(i, weight, height)
-            an_rect = an.get_rect()
-            screen.blit(an, an_rect)
-            font = pygame.font.Font(None, 72)
-            text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
-            text_rect = text_surface.get_rect(center=(weight / 2, 50))
-            screen.blit(text_surface, text_rect)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                inf = input_box.text
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        inf = input_box.text
-                        input_box.kill()  # Удаление поля ввода текста
-
-                green_button_CON.yellow_handle_startcon(event, screen, weight, height, inf)
-                if red_button_back.red_back(event):
-                    running = False
-                    return None
-                manager.process_events(event)
-
-            if i < (ln - 1):
-                i += 1
-            else:
-                i = 0
-
-            manager.update(time_delta)
-            manager.draw_ui(screen)
-            green_button_CON.check_hover(pygame.mouse.get_pos())
-            green_button_CON.draw(screen)
-            red_button_back.check_hover(pygame.mouse.get_pos())
-            red_button_back.draw(screen)
-            clock.tick(120)
 
     def green_escape(self, event):  # запуск игры из escape
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:

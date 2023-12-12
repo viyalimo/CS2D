@@ -46,7 +46,7 @@ class Network:
 
             self.s_c.send(pickle.dumps((player.x, player.y, player.Direction, player.anim, bul)))
             pos = pickle.loads(self.s_c.recv(self.max_size))
-            print(pos, "posssssssssssssssssssss")
+            # print(pos, "posssssssssssssssssssss")
             true_pos = [pos[0][0][0], pos[0][0][1], pos[0][0][2], pos[0][0][3]]
             # print(true_pos, 'true_pos')
             self.qplayer = pos[2]
