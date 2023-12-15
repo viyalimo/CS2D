@@ -57,7 +57,7 @@ def escape_press(screen, weight, height, n):  # меню во время игр�
         green_button.draw(screen)
         red_button.check_hover(pygame.mouse.get_pos())
         red_button.draw(screen)
-        clock.tick(120)
+        clock.tick(60)
 
 
 def connect(screen, weight, height):
@@ -164,7 +164,17 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                 mx, my = pygame.mouse.get_pos()
                 mx = p.x + (mx - p.coordinateblit[0])
                 my = p.y + (my - p.coordinateblit[1])
-                coord_bul.append([p.x + p.player_weight / 2, p.y + p.player_height / 2, mx, my])
+                if p.x > mx:
+                    coord_bul.append([p.x - 0.1, p.y + p.player_height / 2, mx, my])
+                elif p.x + p.player_weight < mx:
+                    coord_bul.append([p.x + p.player_weight + 0.1, p.y + p.player_height / 2, mx, my])
+                elif (p.x <= mx <= p.x + p.player_weight) and (p.y < my):
+                    coord_bul.append([p.x + p.player_weight / 2, p.y + p.player_height + 0.1, mx, my])
+                elif (p.x <= mx <= p.x + p.player_weight) and (p.y > my):
+                    coord_bul.append([p.x + p.player_weight / 2, p.y + 0.1, mx, my])
+                else:
+                    continue
+
         data, true_pos, bullets = n.Send(p, coord_bul)
         # print(data, "PLAYER 1")
         p.x = true_pos[0]
@@ -230,7 +240,7 @@ def host_con(screen, screen_weight, screen_height):  # меню хоста
         yellow_button_CON.check_hover(pygame.mouse.get_pos())
         red_back.draw(screen)
         red_back.check_hover(pygame.mouse.get_pos())
-        clock.tick(120)
+        clock.tick(60)
 
 
 def main_menu():
@@ -275,7 +285,7 @@ def main_menu():
         green_button.draw(screen)
         red_button.check_hover(pygame.mouse.get_pos())
         red_button.draw(screen)
-        clock.tick(150)
+        clock.tick(60)
 
 
 class Button:
