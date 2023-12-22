@@ -8,6 +8,7 @@ from Camera import Camera
 import pygame_gui
 from network import Network
 from Character import Animation1
+from HP import HP
 
 
 def escape_press(screen, weight, height, n):  # меню во время игры
@@ -114,11 +115,12 @@ def connect(screen, weight, height):
         clock.tick(60)
 
 
-def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_height):  # отрисовка основного геймплея
+def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_height, health):  # отрисовка основного геймплея
     # print(player2)
+    hp = HP(scr_weight, scr_height)
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
-    player.draw(win, camera)
+    player.draw(win)
     if not player2:
         pass
     else:
@@ -138,6 +140,7 @@ def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_he
         b_img = pygame.transform.rotate(b_img, bullet[1])
         bullet_rect = b_img.get_rect(center=[bullet[0][0], bullet[0][1]])
         win.blit(b_img, camera.apply(bullet_rect))
+    hp.HP_blit(health, win)
     pygame.display.update()
 
 
@@ -153,6 +156,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
     print(mapa.H_W()[0], mapa.H_W()[1])
     p.get_src(weight, height)
     clock = pygame.time.Clock()
+    HP = 5
     while run:
         coord_bul = []
         for event in pygame.event.get():
@@ -178,7 +182,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                 else:
                     continue
 
-        data, true_pos, bullets = n.Send(p, coord_bul)
+        data, true_pos, bullets, HP = n.Send(p, coord_bul)
         # print(data, "PLAYER 1")
         p.x = true_pos[0]
         p.y = true_pos[1]
@@ -190,7 +194,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
         p.move(camera, mapa.obstac)
         # print('camera:', camera.x, camera.y, 'player:', p.x, p.y, p.Direction)
         # print(f'c_x: {camera.x}, c_y: {camera.y}, p_x: {p.x}, p_y: {p.y}')
-        redrawWindow(screen, p, p2, mapa, camera, bullets, weight, height)
+        redrawWindow(screen, p, p2, mapa, camera, bullets, weight, height, HP)
         clock.tick(60)  # FPS
 
 

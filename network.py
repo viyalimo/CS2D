@@ -29,8 +29,8 @@ class Network:
             self.s_c.send(pickle.dumps(('CONNECT', mapa_x, mapa_y, tile_size)))
             print('Вы присоединились к серверу!')
             start_data = pickle.loads(self.s_c.recv(self.max_size))
-            print(start_data)
-            print(start_data)
+            # print(start_data)
+            # print(start_data)
             self.qplayer = start_data[2]
             if start_data[1] == 'None':
                 p2 = None
@@ -46,16 +46,14 @@ class Network:
 
             self.s_c.send(pickle.dumps((player.x, player.y, player.Direction, player.anim, bul)))
             pos = pickle.loads(self.s_c.recv(self.max_size))
-            # print(pos, "posssssssssssssssssssss")
+            print(pos, "posssssssssssssssssssss")
             true_pos = [pos[0][0][0], pos[0][0][1], pos[0][0][2], pos[0][0][3]]
-            # print(true_pos, 'true_pos')
+            HP = pos[0][2]
             self.qplayer = pos[2]
-            # print(pos[3], 'pos[0][2]')
-            print('bul', pos[3])
             if self.qplayer == 1:
-                return None, true_pos, pos[3]
+                return None, true_pos, pos[3], HP
             else:
-                return pos[1][0], true_pos, pos[3]
+                return pos[1][0], true_pos, pos[3], HP
         except Exception as e:
             print(f'Exception send: {e}')
 
