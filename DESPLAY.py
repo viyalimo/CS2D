@@ -7,6 +7,7 @@ from Map import Map
 from Camera import Camera
 import pygame_gui
 from network import Network
+from Character import Animation1
 
 
 def escape_press(screen, weight, height, n):  # меню во время игры
@@ -121,10 +122,15 @@ def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_he
     if not player2:
         pass
     else:
-        if (player.x > player2.x + mapa.width) and (player.y > player2.y + mapa.height):
+        if (player.x > player2[0] + mapa.width) and (player.y > player2[1] + mapa.height):
             pass
         else:
-            player2.Draw_player2(win, player2, camera)
+            anim_surface = Animation1(player2[2])[player2[3]]
+            anim_surface = pygame.transform.scale(anim_surface, [65, 90])
+            anim_rect = anim_surface.get_rect()
+            anim_rect.topleft = (player2[0], player2[1])
+            win.blit(anim_surface, camera.apply(anim_rect))
+
     for bullet in bullets:
         # if not win.get_rect().collidepoint([bullet[0][0], bullet[0][1]]):
         b_img = pygame.Surface([10, 4]).convert_alpha()
@@ -142,10 +148,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
     n = Network(str(inf))
     pl1, pl2 = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
     p = Player(pl1[0], pl1[1], pl1[2])
-    if isinstance(pl2, list):
-        p2 = Player(pl2[0], pl2[1], pl2[2])
-    else:
-        p2 = None
+    p2 = pl2  # 2 игрок
     p.get_map(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
     print(mapa.H_W()[0], mapa.H_W()[1])
     p.get_src(weight, height)
@@ -182,13 +185,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
         if n.qplayer == 1:
             p2 = None
         if n.qplayer == 2:
-            if not isinstance(p2, Player):
-                p2 = Player(data[0], data[1], data[2])
-            else:
-                p2.x = data[0]
-                p2.y = data[1]
-                p2.Direction = data[2]
-                p2.anim = data[3]
+            p2 = data
 
         p.move(camera, mapa.obstac)
         # print('camera:', camera.x, camera.y, 'player:', p.x, p.y, p.Direction)

@@ -47,22 +47,6 @@ class Player:
                 self.run = False
         ticreite.tick(20)
 
-    def Draw_player2(self, win, player2, camera):
-        ticreite = pygame.time.Clock()
-        anim_surface = Animation1(player2.Direction)[player2.anim]
-        anim_rect = anim_surface.get_rect()
-        self.player_weight = anim_rect.width
-        self.player_height = anim_rect.height
-        anim_rect.topleft = (player2.x, player2.y)
-        win.blit(anim_surface, camera.apply(anim_rect))
-        if self.anim < 3 and self.run:
-            self.anim += 1
-        else:
-            if self.anim == 3:
-                self.anim = 0
-                self.run = False
-        ticreite.tick(20)
-
     def move(self, camera, obstacles):
         self.anim_surface = Animation1(self.Direction)[self.anim]
         self.anim_rect = self.anim_surface.get_rect()
