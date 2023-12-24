@@ -48,7 +48,7 @@ class Player:
                 self.run = False
         ticreite.tick(20)
 
-    def move(self, camera, obstacles):
+    def move(self, camera, obstacles_player, obstacles_bul):
         self.anim_surface = Animation1(self.Direction)[self.anim]
         self.anim_rect = self.anim_surface.get_rect()
         now_press = pygame.key.get_pressed()
@@ -77,9 +77,9 @@ class Player:
             player_dy += self.speed
 
         self.anim_rect = pygame.Rect(self.x + player_dx, self.y + player_dy, self.anim_rect.width, self.anim_rect.height)
-
-        for obstacle in obstacles:
-            obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[2])
+        obstacles_player = obstacles_player + obstacles_bul
+        for obstacle in obstacles_player:
+            obstacle_rect = pygame.Rect(obstacle[0], obstacle[1], obstacle[2], obstacle[3])
             if self.anim_rect.colliderect(obstacle_rect):
                 player_dx, player_dy = 0, 0
                 break  # Прекратить проверку столкновения, если уже произошло

@@ -10,7 +10,8 @@ from server import Server
 class Network:
     def __init__(self, HOST_CL):
         self.port = 5555
-        self.max_size = 5000
+        self.max_size_connect = 5000
+        self.max_size_send = 1000
         self.max_client = 4
         self.qplayer = 0
         self.s_c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,12 +31,12 @@ class Network:
     def start_server(self):
         Server(self.max_client, self.host)
 
-    def connect(self, mapa_x, mapa_y, tile_size):
+    def connect(self, mapa_x, mapa_y, tile_size, obst_pl, obst_bul):
         try:
             self.s_c.connect(self.server)
-            self.s_c.send(pickle.dumps(('CONNECT', mapa_x, mapa_y, tile_size)))
+            self.s_c.send(pickle.dumps(('CONNECT', mapa_x, mapa_y, tile_size, obst_pl, obst_bul)))
             logging.info('Успешное подключение к серверу')
-            start_data = pickle.loads(self.s_c.recv(self.max_size))
+            start_data = pickle.loads(self.s_c.recv(self.max_size_connect))
             self.qplayer = start_data[2]
             p2 = start_data[1][0]
             p3 = start_data[1][1]
@@ -48,7 +49,7 @@ class Network:
     def Send(self, player, bul: list):
         try:
             self.s_c.send(pickle.dumps((player.x, player.y, player.Direction, player.anim, bul)))
-            pos = pickle.loads(self.s_c.recv(self.max_size))
+            pos = pickle.loads(self.s_c.recv(self.max_size_send))
             true_pos = [pos[0][0][0], pos[0][0][1], pos[0][0][2], pos[0][0][3]]
             HP = pos[0][2]
             bull_shop = pos[0][3]

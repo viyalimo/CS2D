@@ -68,9 +68,9 @@ def redrawWindow(win, player, player_data, mapa, camera, bullets, scr_weight, sc
 
 def main(screen, weight, height, mapa, camera, inf):  # основной цикл
     run = True
-    Butt = Button(1, 1, 1, 1, '1', 'images/ground.jpg', )
+    Butt = Button(1, 1, 1, 1, '1', 'images/grass.jpg', )
     n = Network(str(inf))
-    inf = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
+    inf = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size, mapa.obstacles_player, mapa.obstac_bul)
     if inf is None:
         Butt.connect(screen, weight, height, 'Error')
     pl1, pl2, pl3, pl4 = inf
@@ -159,7 +159,7 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                 p4 = data[2]
 
         player_data = [p2, p3, p4]
-        p.move(camera, mapa.obstac)
+        p.move(camera, mapa.obstacles_player, mapa.obstac_bul)
         redrawWindow(screen, p, player_data, mapa, camera, bullets, weight, height, HP, bull_shop)
         clock.tick(60)  # FPS
 
