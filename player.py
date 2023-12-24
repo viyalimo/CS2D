@@ -39,6 +39,7 @@ class Player:
         self.anim_rect.topleft = self.rect
         win.blit(self.anim_surface, self.coordinateblit)
 
+
         if self.anim < 3 and self.run:
             self.anim += 1
         else:

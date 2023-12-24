@@ -1,73 +1,106 @@
+
 import pygame
 import sys
 from Bacground import background_anim
-import socket
 from player import Player
-from Map import Map
-from Camera import Camera
-import pygame_gui
 from network import Network
 from Character import Animation1
 from HP import HP
+from bul_shop import Bull_shop
 from Button import Button
 
 
-def redrawWindow(win, player, player2, mapa, camera, bullets, scr_weight, scr_height, health):  # отрисовка основного геймплея
+screen_weight, screen_height = 1500, 800
+
+hp = HP(screen_weight, screen_height)
+b_shop = Bull_shop(screen_weight, screen_height)
+
+
+def redrawWindow(win, player, player_data, mapa, camera, bullets, scr_weight, scr_height, health, bull_shop):  # отрисовка основного геймплея
     # print(player2)
-    hp = HP(scr_weight, scr_height)
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
     player.draw(win)
+    player2 = player_data[0]
+    player3 = player_data[1]
+    player4 = player_data[2]
     if not player2:
         pass
     else:
-        if (player.x > player2[0] + mapa.width) and (player.y > player2[1] + mapa.height):
-            pass
-        else:
-            anim_surface = Animation1(player2[2])[player2[3]]
-            anim_surface = pygame.transform.scale(anim_surface, [65, 90])
-            anim_rect = anim_surface.get_rect()
-            anim_rect.topleft = (player2[0], player2[1])
-            win.blit(anim_surface, camera.apply(anim_rect))
+        anim_surface = Animation1(player2[2])[player2[3]]
+        anim_surface = pygame.transform.scale(anim_surface, [65, 90])
+        anim_rect = anim_surface.get_rect()
+        anim_rect.topleft = (player2[0], player2[1])
+        win.blit(anim_surface, camera.apply(anim_rect))
+        del anim_surface
+
+    if not player3:
+        pass
+    else:
+        anim_surface = Animation1(player3[2])[player3[3]]
+        anim_surface = pygame.transform.scale(anim_surface, [65, 90])
+        anim_rect = anim_surface.get_rect()
+        anim_rect.topleft = (player3[0], player3[1])
+        win.blit(anim_surface, camera.apply(anim_rect))
+        del anim_surface
+
+    if not player4:
+        pass
+    else:
+        anim_surface = Animation1(player4[2])[player4[3]]
+        anim_surface = pygame.transform.scale(anim_surface, [65, 90])
+        anim_rect = anim_surface.get_rect()
+        anim_rect.topleft = (player4[0], player4[1])
+        win.blit(anim_surface, camera.apply(anim_rect))
+        del anim_surface
 
     for bullet in bullets:
-        # if not win.get_rect().collidepoint([bullet[0][0], bullet[0][1]]):
         b_img = pygame.Surface([10, 4]).convert_alpha()
         b_img.fill([255, 255, 0])
         b_img = pygame.transform.rotate(b_img, bullet[1])
         bullet_rect = b_img.get_rect(center=[bullet[0][0], bullet[0][1]])
         win.blit(b_img, camera.apply(bullet_rect))
+        del b_img
     hp.HP_blit(health, win)
+    b_shop.bul_shop_blit(bull_shop, win)
     pygame.display.update()
 
 
 def main(screen, weight, height, mapa, camera, inf):  # основной цикл
     run = True
-    p2 = None
-    bullets = []
+    Butt = Button(1, 1, 1, 1, '1', 'images/ground.jpg', )
     n = Network(str(inf))
-    pl1, pl2 = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
+    inf = n.connect(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
+    if inf is None:
+        Butt.connect(screen, weight, height, 'Error')
+    pl1, pl2, pl3, pl4 = inf
     p = Player(pl1[0], pl1[1], pl1[2])
     p2 = pl2  # 2 игрок
+    p3 = pl3
+    p4 = pl4
     p.get_map(mapa.H_W()[0], mapa.H_W()[1], mapa.tile_size)
     print(mapa.H_W()[0], mapa.H_W()[1])
     p.get_src(weight, height)
     clock = pygame.time.Clock()
-    Butt = Button(1, 1, 1, 1, '1', 'images/ground.jpg', )
     HP = 5
+    bull_shop = 24
     while run:
         coord_bul = []
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                n.Disconect()
                 pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     inf = Butt.escape_press(screen, weight, height, n)
                     if inf == "Exit":
                         main_menu()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.key == pygame.K_r:
+                    coord_bul = 'recharge'
+            if event.type == pygame.MOUSEBUTTONDOWN and bull_shop > 0 and isinstance(coord_bul, list):
                 mx, my = pygame.mouse.get_pos()
                 mx = p.x + (mx - p.coordinateblit[0])
                 my = p.y + (my - p.coordinateblit[1])
@@ -81,25 +114,57 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
                     coord_bul.append([p.x + p.player_weight / 2, p.y + 0.1, mx, my])
                 else:
                     continue
-        data, true_pos, bullets, HP = n.Send(p, coord_bul)
-        # print(data, "PLAYER 1")
+        data, true_pos, bullets, HP, bull_shop = n.Send(p, coord_bul)
+
         p.x = true_pos[0]
         p.y = true_pos[1]
         if n.qplayer == 1:
             p2 = None
+            p3 = None
+            p4 = None
         if n.qplayer == 2:
-            p2 = data
+            if data is None:
+                p2 = data
+            else:
+                p2 = data[0]
+            p3 = None
+            p4 = None
+        if n.qplayer == 3:
+            if data is None:
+                p2 = None
+                p3 = None
+            elif len(data) == 1:
+                p2 = data[0]
+                p3 = None
+            else:
+                p2 = data[0]
+                p3 = data[1]
+            p4 = None
+        if n.qplayer == 4:
+            if data is None:
+                p2 = None
+                p3 = None
+                p4 = None
+            elif len(data) == 1:
+                p2 = data[0]
+                p3 = None
+                p4 = None
+            elif len(data) == 2:
+                p2 = data[0]
+                p3 = data[1]
+                p4 = None
+            else:
+                p2 = data[0]
+                p3 = data[1]
+                p4 = data[2]
 
+        player_data = [p2, p3, p4]
         p.move(camera, mapa.obstac)
-        # print('camera:', camera.x, camera.y, 'player:', p.x, p.y, p.Direction)
-        # print(f'c_x: {camera.x}, c_y: {camera.y}, p_x: {p.x}, p_y: {p.y}')
-        redrawWindow(screen, p, p2, mapa, camera, bullets, weight, height, HP)
+        redrawWindow(screen, p, player_data, mapa, camera, bullets, weight, height, HP, bull_shop)
         clock.tick(60)  # FPS
-
 
 def main_menu():
     button_weight, button_height = 200, 100
-    screen_weight, screen_height = 1500, 800  # размер окна приложения
     screen = pygame.display.set_mode([screen_weight, screen_height])  # создание окна приложения
     pygame.display.set_caption("CS2D")  # название окна приложенния
     green_button = Button(screen_weight / 2 - (200 / 2), 400, button_weight, button_height, 'play',
@@ -124,6 +189,7 @@ def main_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
                 pygame.quit()
                 sys.exit()
 
@@ -142,7 +208,8 @@ def main_menu():
         green_button.draw(screen)
         red_button.check_hover(pygame.mouse.get_pos())
         red_button.draw(screen)
-        clock.tick(60)
+        clock.tick(10)
+
 
 if __name__ == "__main__":
     pygame.init()

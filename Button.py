@@ -44,9 +44,9 @@ class Button:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
             if self.sound:
                 self.sound.play()
-            inf, mapa, camera = self.host_con(screen, weight, height)
-            if inf is not None:
-                return inf, mapa, camera
+            ret = self.local_global(screen, weight, height)
+            if ret is not None:
+                return ret[0], ret[1], ret[2]
 
     def red_handle_event(self, event):  # выход из игры в начальном меню
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
@@ -74,13 +74,14 @@ class Button:
 
     def yellow_handle_event_CON(self, event, screen, weight, height):  # действие кнопки присоединиться
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
-            ret = self.connect(screen, weight, height)
+            ret = self.connect(screen, weight, height, 'None')
             if ret is not None:
                 return ret[0], ret[1], ret[2]
             if self.sound:
                 self.sound.play()
 
-    def yellow_handle_startcon(self, event, screen, weight, height, inf):  # начало игры после нажатия кнопки начать игру в подключении
+    def yellow_handle_startcon(self, event, screen, weight, height,
+                               inf):  # начало игры после нажатия кнопки начать игру в подключении
         mapa = Map(1)
         camera = Camera(weight, height, mapa.H_W()[0], mapa.H_W()[1])
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
@@ -131,7 +132,7 @@ class Button:
                 ret = yellow_button_CON.yellow_handle_event_CON(event, screen, screen_weight, screen_height)
                 if ret is not None:
                     return ret[0], ret[1], ret[2]
-                #return inf, mapa, camera
+                # return inf, mapa, camera
 
                 con = red_back.red_back(event)
                 if con:
@@ -148,62 +149,7 @@ class Button:
             yellow_button_CON.check_hover(pygame.mouse.get_pos())
             red_back.draw(screen)
             red_back.check_hover(pygame.mouse.get_pos())
-            clock.tick(60)
-
-    def connect(self, screen, weight, height):
-        running = True
-        clock = pygame.time.Clock()
-        # Создание менеджера элементов пользовательского интерфейса
-        manager = pygame_gui.UIManager((weight, height))
-        # Создание поля ввода текста
-        input_box = pygame_gui.elements.UITextEntryLine(
-            relative_rect=pygame.Rect([weight / 2 - (400 / 2), 300], [400, 50]), manager=manager)
-        # Создание кнопки
-        green_button_CON = Button(weight / 2 - (200 / 2), 400, 200, 100, 'Начать игру!',
-                                  'Button/play_button_not_press2.png', 'Button/green_button_press.png')
-        red_button_back = Button(weight / 2 - (200 / 2), (green_button_CON.y + green_button_CON.height), 200, 100,
-                                 'назад',
-                                 'Button/red_button_not_press.png', 'Button/red_button_press.png')
-        i = 0
-        clock = pygame.time.Clock()
-        while running:
-            time_delta = clock.tick(60) / 1000.0
-            pygame.display.flip()
-            screen.fill([0, 0, 0])
-            an, ln = background_anim(i, weight, height)
-            an_rect = an.get_rect()
-            screen.blit(an, an_rect)
-            font = pygame.font.Font(None, 72)
-            text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
-            text_rect = text_surface.get_rect(center=(weight / 2, 50))
-            screen.blit(text_surface, text_rect)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                inf = input_box.text
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
-                        inf = input_box.text
-                        input_box.kill()  # Удаление поля ввода текста
-                inf, mapa, camera = green_button_CON.yellow_handle_startcon(event, screen, weight, height, inf)
-                if inf is not None:
-                    return inf, mapa, camera
-                if red_button_back.red_back(event):
-                    running = False
-                    return None
-                manager.process_events(event)
-            if i < (ln - 1):
-                i += 1
-            else:
-                i = 0
-            manager.update(time_delta)
-            manager.draw_ui(screen)
-            green_button_CON.check_hover(pygame.mouse.get_pos())
-            green_button_CON.draw(screen)
-            red_button_back.check_hover(pygame.mouse.get_pos())
-            red_button_back.draw(screen)
-            clock.tick(60)
+            clock.tick(10)
 
     def escape_press(self, screen, weight, height, n):  # меню во время игры
         running = True
@@ -253,9 +199,9 @@ class Button:
             green_button.draw(screen)
             red_button.check_hover(pygame.mouse.get_pos())
             red_button.draw(screen)
-            clock.tick(60)
+            clock.tick(10)
 
-    def connect(self, screen, weight, height):
+    def connect(self, screen, weight, height, fin):
         running = True
         clock = pygame.time.Clock()
         # Создание менеджера элементов пользовательского интерфейса
@@ -279,9 +225,14 @@ class Button:
             an_rect = an.get_rect()
             screen.blit(an, an_rect)
             font = pygame.font.Font(None, 72)
-            text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
-            text_rect = text_surface.get_rect(center=(weight / 2, 50))
-            screen.blit(text_surface, text_rect)
+            if fin == 'None':
+                text_surface = font.render("Введите IP адрес сервера ниже", True, [255, 255, 255])
+                text_rect = text_surface.get_rect(center=(weight / 2, 50))
+                screen.blit(text_surface, text_rect)
+            if fin == 'Error':
+                text_surface = font.render("Попробуйте ещё раз", True, [255, 255, 255])
+                text_rect = text_surface.get_rect(center=(weight / 2, 50))
+                screen.blit(text_surface, text_rect)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -308,4 +259,59 @@ class Button:
             green_button_CON.draw(screen)
             red_button_back.check_hover(pygame.mouse.get_pos())
             red_button_back.draw(screen)
-            clock.tick(60)
+            clock.tick(10)
+
+    def local_global(self, screen, screen_weight, screen_height):
+        button_weight, button_height = 300, 100
+        green_button = Button(screen_weight / 2 - (300 / 2), 400, button_weight, button_height, 'глобальная сеть',
+                              'Button/play_button_not_press2.png', 'Button/green_button_press.png')
+        red_button = Button(screen_weight / 2 - (300 / 2), (green_button.y + green_button.height), button_weight,
+                            button_height, 'локальная сеть', 'Button/play_button_not_press2.png',
+                            'Button/green_button_press.png')
+        red_button_back = Button(screen_weight / 2 - (300 / 2), (red_button.y + red_button.height), button_weight,
+                                 button_height, 'назад', 'Button/red_button_not_press.png',
+                                 'Button/red_button_press.png')
+        running = True
+        i = 0
+        clock = pygame.time.Clock()
+        while running:
+            pygame.display.flip()
+            screen.fill([0, 0, 0])
+            an, ln = background_anim(i, screen_weight, screen_height)
+            an_rect = an.get_rect()
+            screen.blit(an, an_rect)
+            font = pygame.font.Font(None, 72)
+            text_surface = font.render("CS_2D", True, [255, 255, 255])
+            text_rect = text_surface.get_rect(center=(screen_weight / 2, 50))
+            screen.blit(text_surface, text_rect)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    pygame.quit()
+                    sys.exit()
+                ret = red_button.red_global(screen, screen_weight, screen_height, event)
+                if ret is not None:
+                    return ret[0], ret[1], ret[2]
+                con = red_button_back.red_back(event)
+                if con:
+                    running = False
+                    return None
+            if i < (ln - 1):
+                i += 1
+            else:
+                i = 0
+            green_button.check_hover(pygame.mouse.get_pos())
+            green_button.draw(screen)
+            red_button.check_hover(pygame.mouse.get_pos())
+            red_button.draw(screen)
+            red_button_back.check_hover(pygame.mouse.get_pos())
+            red_button_back.draw(screen)
+            clock.tick(10)
+
+    def red_global(self, screen, weight, height, event):
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
+            if self.sound:
+                self.sound.play()
+            ret = self.host_con(screen, weight, height)
+            if ret is not None:
+                return ret[0], ret[1], ret[2]
