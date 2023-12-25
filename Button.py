@@ -289,6 +289,9 @@ class Button:
                     running = False
                     pygame.quit()
                     sys.exit()
+                ter = green_button.green_global(event, screen_weight, screen_height)
+                if ter is not None:
+                    return ter[0], ter[1], ter[2]
                 ret = red_button.red_global(screen, screen_weight, screen_height, event)
                 if ret is not None:
                     return ret[0], ret[1], ret[2]
@@ -315,3 +318,13 @@ class Button:
             ret = self.host_con(screen, weight, height)
             if ret is not None:
                 return ret[0], ret[1], ret[2]
+
+    def green_global(self, event, weight, height):
+        mapa = Map(1)
+        camera = Camera(weight, height, mapa.H_W()[0], mapa.H_W()[1])
+        inf = "GLOBAL"
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and self.is_hovered:
+            # main(screen, weight, height, mapa, camera, inf)
+            if self.sound:
+                self.sound.play()
+            return inf, mapa, camera
