@@ -10,7 +10,7 @@ from server import Server
 class Network:
     def __init__(self, HOST_CL):
         self.port = 5555
-        self.max_size_send = 2000
+        self.max_size_send = 1150
         self.max_client = 4
         self.qplayer = 0
         self.s_c = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
