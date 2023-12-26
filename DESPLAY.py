@@ -17,7 +17,6 @@ b_shop = Bull_shop(screen_weight, screen_height)
 
 
 def redrawWindow(win, player, player_data, mapa, camera, bullets, scr_weight, scr_height, health, bull_shop):  # отрисовка основного геймплея
-    # print(player2)
     win.fill('black')
     win = mapa.DRAWMAP(win, camera)
     player.draw(win)
@@ -166,6 +165,8 @@ def main(screen, weight, height, mapa, camera, inf):  # основной цик�
 def main_menu():
     button_weight, button_height = 200, 100
     screen = pygame.display.set_mode([screen_weight, screen_height])  # создание окна приложения
+    icon = pygame.image.load('images/icon.png')
+    pygame.display.set_icon(icon)
     pygame.display.set_caption("CS2D")  # название окна приложенния
     green_button = Button(screen_weight / 2 - (200 / 2), 400, button_weight, button_height, 'play',
                           'Button/play_button_not_press2.png', 'Button/green_button_press.png')
